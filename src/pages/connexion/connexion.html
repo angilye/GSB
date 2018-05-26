@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Connexion
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content padding id="page1">
+  <img src="assets/img/MveM5RGpQ5iYsXPr1UCj_cadenas.jpg" style="display:block;width:20%;height:auto;margin-left:auto;margin-right:auto;" />
+  {{error}}
+  <form id="connexion-form1">
+    <div class="spacer" style="width:300px;height:8px;" id="connexion-spacer1"></div>
+    <ion-item id="connexion-input4">
+      <ion-label></ion-label>
+      <ion-input type="text" placeholder="Login" name="loginId" [(ngModel)]="login"></ion-input>
+    </ion-item>
+    <div class="spacer" style="width:300px;height:16px;" id="connexion-spacer2"></div>
+    <ion-item id="connexion-input1">
+      <ion-label></ion-label>
+      <ion-input type="password" placeholder="Mot de passe" name="passwordId" [(ngModel)]="password"></ion-input>
+    </ion-item>
+  </form>
+  <div class="spacer" style="width:300px;height:18px;" id="connexion-spacer3"></div>
+  <button id="connexion-button1" ion-button color="positive" block on-click="Signin()">
+    Sign in
+  </button>
+  <form id="connexion-form3">
+    <ion-item id="connexion-checkbox1">
+      <ion-label>
+        Enregistrer votre pseudo?
+      </ion-label>
+      <ion-checkbox></ion-checkbox>
+    </ion-item>
+    <div class="spacer" style="width:300px;height:16px;" id="connexion-spacer4"></div>
+  </form>
+  <img src="assets/img/7gQx2nPVRc67RZmP5ljy_logoGSB.png" style="display:block;width:20%;height:auto;margin-left:auto;margin-right:auto;" />
+  
+</ion-content>
