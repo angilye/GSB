@@ -10,6 +10,7 @@ import { MODIFIERRAPPORTPage } from '../pages/m-odifierrapport/m-odifierrapport'
 import { GESTIONMEDECINSPage } from '../pages/g-estionmedecins/g-estionmedecins';
 import { PROFILDUMEDECINPage } from '../pages/p-rofildumedecin/p-rofildumedecin';
 import { MDecinsPage } from '../pages/m-decins/m-decins';
+import { VersionsPage } from '../pages/versions/versions';
 
 import { BddService } from '../services/bddapi.services';
 
@@ -31,7 +32,8 @@ import { HttpModule } from "@angular/http";
     MODIFIERRAPPORTPage,
     GESTIONMEDECINSPage,
     PROFILDUMEDECINPage,
-    MDecinsPage
+    MDecinsPage,
+    VersionsPage
   ],
   imports: [
     HttpModule,
@@ -48,7 +50,8 @@ import { HttpModule } from "@angular/http";
     MODIFIERRAPPORTPage,
     GESTIONMEDECINSPage,
     PROFILDUMEDECINPage,
-    MDecinsPage
+    MDecinsPage,
+    VersionsPage
   ],
   providers: [
     BddService,
