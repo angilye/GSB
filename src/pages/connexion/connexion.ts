@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { AcceuilPage } from '../acceuil/acceuil';
+import { VersionsPage } from '../versions/versions';
 
 import { BddService } from '../../services/bddapi.services';
 import { BddApiSignin } from '../../models/bddapi-signin.model';
@@ -40,5 +41,9 @@ export class ConnexionPage {
   goToAcceuil() {
     //if (!params) params = {};
     this.navCtrl.push(AcceuilPage);
+  }
+  goToVersions() {
+    
+    this.navCtrl.push(VersionsPage);
   }
 }
