@@ -34,8 +34,6 @@ export class ConnexionPage {
           this.error ='Your login or password is not valid'
         }
       });
-      
-    
   }
 
   //goToAcceuil(params){
