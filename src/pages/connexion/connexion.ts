@@ -31,6 +31,7 @@ export class ConnexionPage {
         console.log(this.news);
         if (this.news.Success) {
           this.navCtrl.push(AcceuilPage);
+          this.error='succes'
         } else {
           this.error ='Your login or password is not valid'
         }
