@@ -30,18 +30,13 @@ export class ConnexionPage {
         this.news = newsFetched;
         console.log(this.news);
         if (this.news.Success) {
-          this.goToAcceuil();
+          this.navCtrl.push(AcceuilPage);
         } else {
           this.error ='Your login or password is not valid'
         }
       });
   }
 
-  //goToAcceuil(params){
-  goToAcceuil() {
-    //if (!params) params = {};
-    this.navCtrl.push(AcceuilPage);
-  }
   goToVersions() {
     
     this.navCtrl.push(VersionsPage);
