@@ -31,10 +31,10 @@ export class ConnexionPage {
         if (this.news.Success) {
           this.goToAcceuil();
         } else {
-          this.error = "Your login or password is false.";
-          alert('mal remplie');
+          this.error ='Your login or password is not valid'
         }
       });
+      
     
   }
 
