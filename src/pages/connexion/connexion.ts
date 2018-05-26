@@ -22,7 +22,7 @@ export class ConnexionPage {
     
   }
 
-  Signin() {
+  public Signin() {
     console.log(this.login)
     console.log(this.password)
     this.bddService.getSignin(this.login, this.password)
