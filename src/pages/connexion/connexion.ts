@@ -31,7 +31,7 @@ export class ConnexionPage {
         this.error = "2";
         this.news = newsFetched;
         console.log(this.news);
-        this.error = "3";
+        this.error = this.news.Success;
         if (!this.news.Success) {
           this.error = "4";
           this.navCtrl.push(AcceuilPage);
