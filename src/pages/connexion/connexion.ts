@@ -25,9 +25,10 @@ export class ConnexionPage {
   public Signin() {
     console.log(this.login);
     console.log(this.password);
-    this.error = this.login;
+    this.error = "1";
     this.bddService.getSignin(this.login, this.password)
       .then(newsFetched => {
+        this.error = "2";
         this.news = newsFetched;
         console.log(this.news);
         if (this.news.Success) {
