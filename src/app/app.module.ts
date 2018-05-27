@@ -11,6 +11,7 @@ import { GESTIONMEDECINSPage } from '../pages/g-estionmedecins/g-estionmedecins'
 import { PROFILDUMEDECINPage } from '../pages/p-rofildumedecin/p-rofildumedecin';
 import { MDecinsPage } from '../pages/m-decins/m-decins';
 import { VersionsPage } from '../pages/versions/versions';
+import { ChargementPage } from '../pages/chargement/chargement';
 
 import { BddService } from '../services/bddapi.services';
 
@@ -33,7 +34,8 @@ import { HttpModule } from "@angular/http";
     GESTIONMEDECINSPage,
     PROFILDUMEDECINPage,
     MDecinsPage,
-    VersionsPage
+    VersionsPage,
+    ChargementPage
   ],
   imports: [
     HttpModule,
@@ -51,7 +53,8 @@ import { HttpModule } from "@angular/http";
     GESTIONMEDECINSPage,
     PROFILDUMEDECINPage,
     MDecinsPage,
-    VersionsPage
+    VersionsPage,
+    ChargementPage
   ],
   providers: [
     BddService,
