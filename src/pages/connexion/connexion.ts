@@ -18,6 +18,7 @@ export class ConnexionPage {
   error: string;
   testConnection: boolean = false;
 
+  //mise en place du parsage de la reponse en JSON
   news: BddApiSignin = new BddApiSignin();
 
   constructor(public navCtrl: NavController, private bddService: BddService) {
@@ -26,18 +27,16 @@ export class ConnexionPage {
 
   public Signin() {
 
-    console.log(this.login);
-    console.log(this.password);
-
+    //appel de la fonction bddService et transmission des données pour l'appel à l'API
     this.bddService.getSignin(this.login, this.password)
-      .then(newsFetched => {
-        this.news = newsFetched;
-        if (this.news.Success || this.testConnection) {
-          //this.navCtrl.push(AcceuilPage);
+      .then(newsFetched => { // si reussi faire ....
+        this.news = newsFetched; // parssage de la réponse celon le models "news" definit en tant que BddApiSignin
+        if (this.news.Success || this.testConnection) { // test de la reponse getSignin, False or True
+          //Si true alors on passe à la page suivante en envoyant des informations à celle ci
           this.navCtrl.push(ChargementPage, {
             next: AcceuilPage
           });
-        } else {
+        } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
           this.error = 'Your login or password is not valid';
         }
       });
