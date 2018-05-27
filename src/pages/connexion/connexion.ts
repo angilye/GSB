@@ -23,19 +23,15 @@ export class ConnexionPage {
   }
 
   public Signin() {
+
     console.log(this.login);
     console.log(this.password);
-    this.error = "1";
+
     this.bddService.getSignin(this.login, this.password)
       .then(newsFetched => {
-        this.error = "2";
         this.news = newsFetched;
-        console.log(this.news);
-        this.error = this.news.Success;
-        if (!this.news.Success) {
-          this.error = "4";
+        if (this.news.Success) {
           this.navCtrl.push(AcceuilPage);
-          this.error = 'succes';
         } else {
           this.error = 'Your login or password is not valid';
         }
