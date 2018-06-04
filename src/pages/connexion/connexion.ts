@@ -5,8 +5,7 @@ import { VersionsPage } from '../versions/versions';
 import { ChargementPage } from '../chargement/chargement';
 
 import { BddService } from '../../services/bddapi.services';
-import { BddApiSignin } from '../../models/bddapi-signin.model';
-// import { BddApiGetUser } from '../../models/bddapi-getuser.model';
+import { BddApiGetUser } from '../../models/bddapi-getuser.model';
 
 @Component({
   selector: 'page-connexion',
@@ -20,7 +19,7 @@ export class ConnexionPage {
   testConnection: boolean = false;
 
   //mise en place du parsage de la reponse en JSON
-  signin: BddApiSignin = new BddApiSignin();
+  signin: BddApiGetUser = new BddApiGetUser();
 
   constructor(public navCtrl: NavController, private bddService: BddService) {
     
@@ -29,14 +28,20 @@ export class ConnexionPage {
   public Signin() {
 
     //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
-    this.bddService.getSignin(this.login, this.password)
+    this.bddService.getInfoVisiteur(this.login, this.password)
       .then(newsFetched => { // si reussi faire ....
-        this.signin = newsFetched; // parssage de la r�ponse celon le models "signin" definit en tant que BddApiSignin
+        this.signin = newsFetched; // parssage de la r�ponse celon le models "signin" definit en tant que BddApiGetUser
+
         if (this.signin.Success || this.testConnection) { // test de la reponse getSignin, False or True
+
           //Si true alors on passe � la page suivante en envoyant des informations � celle ci
           this.navCtrl.push(ChargementPage, {
+
+            signin: this.signin.Visiteur,
             next: AcceuilPage
+
           });
+          
         } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
           this.error = 'Your login or password is not valid';
         }
