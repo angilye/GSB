@@ -6,6 +6,7 @@ import { ChargementPage } from '../chargement/chargement';
 
 import { BddService } from '../../services/bddapi.services';
 import { BddApiSignin } from '../../models/bddapi-signin.model';
+// import { BddApiGetUser } from '../../models/bddapi-getuser.model';
 
 @Component({
   selector: 'page-connexion',
@@ -19,7 +20,7 @@ export class ConnexionPage {
   testConnection: boolean = false;
 
   //mise en place du parsage de la reponse en JSON
-  news: BddApiSignin = new BddApiSignin();
+  signin: BddApiSignin = new BddApiSignin();
 
   constructor(public navCtrl: NavController, private bddService: BddService) {
     
@@ -27,12 +28,12 @@ export class ConnexionPage {
 
   public Signin() {
 
-    //appel de la fonction bddService et transmission des données pour l'appel à l'API
+    //appel de la fonction bddService et transmission des donnï¿½es pour l'appel ï¿½ l'API
     this.bddService.getSignin(this.login, this.password)
       .then(newsFetched => { // si reussi faire ....
-        this.news = newsFetched; // parssage de la réponse celon le models "news" definit en tant que BddApiSignin
-        if (this.news.Success || this.testConnection) { // test de la reponse getSignin, False or True
-          //Si true alors on passe à la page suivante en envoyant des informations à celle ci
+        this.signin = newsFetched; // parssage de la rï¿½ponse celon le models "signin" definit en tant que BddApiSignin
+        if (this.signin.Success || this.testConnection) { // test de la reponse getSignin, False or True
+          //Si true alors on passe ï¿½ la page suivante en envoyant des informations ï¿½ celle ci
           this.navCtrl.push(ChargementPage, {
             next: AcceuilPage
           });

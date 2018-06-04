@@ -19,18 +19,16 @@ export class ChargementPage {
 
   log: string;
 
-  private testSiTablesEstMonte: number;
+  private nextpage: string;
 
   constructor(public navCtrl: NavController, private navParams: NavParams, private sqlite: SQLite) {
 
     // récuperation d'information transmise par la page d'avant.
-    let nextPage = navParams.get('next');
+    this.nextpage = navParams.get('next');
 
     this.log = 'lancement de la creation de la bd /';
 
     this.createDatabaseFile();
-
-    setTimeout(() => { this.navCtrl.push(nextPage) }, 78000);
 
   }
 
@@ -66,7 +64,7 @@ export class ChargementPage {
       ['CREATE TABLE IF NOT EXISTS `attenteEnvoieAPI` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `enteteUrl` TEXT NOT NULL, `requete` TEXT NOT NULL )'],
       ['INSERT INTO suivieApp (id, creationDB, creationTables) VALUES(1,1,1)']
     ])
-    .then( () => this.log = this.log.concat('monter des tables fini'))  
+      .then(() => { this.log = this.log.concat('monter des tables fini'); this.verificationSiTableMonter(this.db);})  
     .catch( () =>this.log = this.log.concat('monter des tables echouer'));
   }
 
@@ -100,9 +98,7 @@ export class ChargementPage {
           return;
         }
 
-        if(data.rows){
-          this.testSiTablesEstMonte = data.rows.item(0).creationTables; 
-        }
+        setTimeout(() => { this.navCtrl.push(this.nextpage) }, 30000);
 
       })
       .catch(() => this.createTable(this.db));
