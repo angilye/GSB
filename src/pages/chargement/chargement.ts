@@ -19,7 +19,7 @@ export class ChargementPage {
 
   log: string;
 
-  private testTables: string;
+  private testSiTablesEstMonte: number;
 
   constructor(public navCtrl: NavController, private navParams: NavParams, private sqlite: SQLite) {
 
@@ -45,15 +45,11 @@ export class ChargementPage {
     .then((db: SQLiteObject) => {
 
       this.db = db;
-      
-      this.createTable(this.db);
 
-      this.validationCreationTables(this.db);
-
-      this.verificationSiTableMonter(this.db);
+      this.verificationSiTableMonter(this.db);     
 
     })
-    .catch(e => console.log(e));
+    .catch(e => this.log = e);
 
   }
 
@@ -63,11 +59,12 @@ export class ChargementPage {
       ['CREATE TABLE IF NOT EXISTS `visiteur` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `login` TEXT, `mdp` TEXT, `adresse` TEXT, `cp` INTEGER, `ville` TEXT, `dateEmbauche` TEXT )'],
       ['CREATE TABLE IF NOT EXISTS `famille` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `libelle` TEXT )'],
       ['CREATE TABLE IF NOT EXISTS `medecin` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `tel` INTEGER, `specialiteComplementaire` TEXT, `departement` TEXT )'],
-      ['CREATE TABLE IF NOT EXISTS "medicament" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nomCommercial` TEXT, `idFamille` INTEGER, `composition` TEXT, `effets` TEXT, `contreIndications` TEXT, FOREIGN KEY(`idFamille`) REFERENCES `famille`(`id`) )'],
-      ['CREATE TABLE IF NOT EXISTS "rapport" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `date` TEXT, `motif` TEXT, `bilan` TEXT, `idVisiteur` INTEGER, `idMedecin` INTEGER, FOREIGN KEY(`idMedecin`) REFERENCES `medecin`(`id`), FOREIGN KEY(`idVisiteur`) REFERENCES `visiteur`(`id`) )'],
-      ['CREATE TABLE IF NOT EXISTS "offrir" ( `idRapport` INTEGER NOT NULL, `idMedicament` INTEGER NOT NULL, `quantite` INTEGER, FOREIGN KEY(`idRapport`) REFERENCES `rapport`(`id`), PRIMARY KEY(`idRapport`,`idMedicament`) )'],
-      ['CREATE TABLE IF NOT EXISTS `suivieApp` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `creationDB` INTEGER, `creationTables` INTEGER, `dateDernierImportInformationViaApi` TEXT, `dateDerniereConnexionSurApp` TEXT, `modifViaApiEnAttente` INTEGER, `versionApp` TEXT )'],
-      ['CREATE TABLE `attenteEnvoieAPI` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `enteteUrl` TEXT NOT NULL, `requete` TEXT NOT NULL )']
+      ['CREATE TABLE IF NOT EXISTS `medicament` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nomCommercial` TEXT, `idFamille` INTEGER, `composition` TEXT, `effets` TEXT, `contreIndications` TEXT, FOREIGN KEY(`idFamille`) REFERENCES `famille`(`id`) )'],
+      ['CREATE TABLE IF NOT EXISTS `rapport` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `date` TEXT, `motif` TEXT, `bilan` TEXT, `idVisiteur` INTEGER, `idMedecin` INTEGER, FOREIGN KEY(`idMedecin`) REFERENCES `medecin`(`id`), FOREIGN KEY(`idVisiteur`) REFERENCES `visiteur`(`id`) )'],
+      ['CREATE TABLE IF NOT EXISTS `offrir` ( `idRapport` INTEGER NOT NULL, `idMedicament` INTEGER NOT NULL, `quantite` INTEGER, FOREIGN KEY(`idRapport`) REFERENCES `rapport`(`id`), PRIMARY KEY(`idRapport`,`idMedicament`) )'],
+      ['CREATE TABLE IF NOT EXISTS `suivieApp` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `creationDB` INTEGER DEFAULT 0, `creationTables` INTEGER DEFAULT 0, `dateDernierImportInformationViaApi` TEXT, `dateDerniereConnexionSurApp` TEXT, `modifViaApiEnAttente` INTEGER DEFAULT 0, `versionApp` TEXT DEFAULT 0.1 )'],
+      ['CREATE TABLE IF NOT EXISTS `attenteEnvoieAPI` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `enteteUrl` TEXT NOT NULL, `requete` TEXT NOT NULL )'],
+      ['INSERT INTO suivieApp (creationDB, creationTables) VALUES(1,1)']
     ])
     .then( () => this.log = this.log.concat('monter des tables fini'))  
     .catch( () =>this.log = this.log.concat('monter des tables echouer'));
@@ -94,32 +91,21 @@ export class ChargementPage {
       .catch(() => this.log = this.log.concat(' Drop de toutes les tables echouer'));
   }
 
-  private validationCreationDB(db: SQLiteObject) {
-
-    db.executeSql('INSERT INTO suivieApp (creationDB) VALUES(1);', {})
-      .then(() => console.log('Executed SQL'))
-      .catch(e => console.log(e));
-
-  }
-
-  private validationCreationTables(db: SQLiteObject) {
-
-    db.executeSql('INSERT INTO suivieApp (creationTables) VALUES(1);', {})
-      .then(() => console.log('Executed SQL'))
-      .catch(e => console.log(e));
-
-  }
-
   private verificationSiTableMonter(db: SQLiteObject) {
 
-    db.executeSql('SELECT creationTables FROM `suivieApp`;', {})
+    db.executeSql('SELECT * FROM `suivieApp`;', {})
       .then((data) => {
-        
-        if(data.rows){
-          this.log = data.rows.item(0).creationTables; 
+
+        if(data == null) {
+          return;
         }
+
+        if(data.rows){
+          this.testSiTablesEstMonte = data.rows.item(0).creationTables; 
+        }
+
       })
-      .catch(e => console.log(e));
+      .catch(() => this.createTable(this.db));
   }
   
 }
