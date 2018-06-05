@@ -7,6 +7,9 @@ import { ChargementPage } from '../chargement/chargement';
 import { BddService } from '../../services/bddapi.services';
 import { BddApiGetUser } from '../../models/bddapi-getuser.model';
 
+import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+
+
 @Component({
   selector: 'page-connexion',
   templateUrl: 'connexion.html'
@@ -21,12 +24,11 @@ export class ConnexionPage {
   //mise en place du parsage de la reponse en JSON
   signin: BddApiGetUser = new BddApiGetUser();
 
-  constructor(public navCtrl: NavController, private bddService: BddService) {
+  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite) {
     
   }
 
   public Signin() {
-
     //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
     this.bddService.getInfoVisiteur(this.login, this.password)
       .then(newsFetched => { // si reussi faire ....
@@ -38,6 +40,7 @@ export class ConnexionPage {
           this.navCtrl.push(ChargementPage, {
 
             signin: this.signin.Visiteur,
+            styleLogin: "api",
             next: AcceuilPage
 
           });
@@ -48,8 +51,48 @@ export class ConnexionPage {
       });
   }
 
-  goToVersions() {
+  public goToVersions() {
     
     this.navCtrl.push(VersionsPage);
   }
+
+  private openDB(): void {
+
+    this.sqlite.create({
+
+      name: 'gsb.db',
+      location: 'default'
+
+    })
+      .then((db: SQLiteObject) => {
+
+        db.executeSql('SELECT login, mdp FROM `visiteur`;', {})
+          .then((data) => {
+
+            if (data == null) {
+              return;
+            }
+
+            if (data.rows.item(0).login == this.login && data.rows.item(0).mdp == this.password) {
+
+              this.navCtrl.push(ChargementPage, {
+
+                styleLogin: "local",
+                next: AcceuilPage
+
+              });
+              
+            } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
+              this.error = 'Your login or password is not valid ';
+            }
+
+          })
+          .catch(() => { this.error = 'Lors de la premiere connection, il vous faut une connexion internet'; setTimeout(() => { this.Signin() }, 5000); });
+
+
+      })
+      .catch(() => { this.error = 'Une erreur lors de la creation de la BD est survenue'; setTimeout(() => { this.Signin() }, 5000); });
+
+  }
+  
 }

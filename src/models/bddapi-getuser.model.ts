@@ -7,4 +7,13 @@ import { BddApiGetUserVisiteur } from './bddapi-getuser-visiteur.model';
 export class BddApiGetUser {
   Success: string;
   Visiteur: BddApiGetUserVisiteur[];
+  id: string;
+  nom: string;
+  prenom: string;
+  login: string;
+  mdp: string;
+  adresse: string;
+  cp: string;
+  ville: string;
+  dateEmbauche: string;
 }

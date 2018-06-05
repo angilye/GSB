@@ -40,17 +40,23 @@ export class ChargementPage {
 
     // récuperation d'information transmise par la page d'avant.
     this.nextpage = navParams.get('next'); 
-    this.signin = navParams.get('signin');
 
-    // recuperation des infos de l'utilisateur qui vien de se logue
-    this.id = this.signin.id;
-    this.prenom = this.signin.nom;
-    this.login = this.signin.prenom;
-    this.mdp = this.signin.login;
-    this.adresse = this.signin.mdp;
-    this.cp = this.signin.adresse;
-    this.ville = this.signin.ville;
-    this.dateEmbauche = this.signin.dateEmbauche;
+    if(navParams.get('styleLogin') == "api") {
+
+      this.signin = navParams.get('signin');
+      // recuperation des infos de l'utilisateur qui vien de se logue
+      this.id = this.signin.id;
+      this.nom = this.signin.nom;
+      this.prenom = this.signin.prenom;
+      this.login = this.signin.login;
+      this.mdp = this.signin.mdp;
+      this.adresse = this.signin.adresse;
+      this.cp = this.signin.cp;
+      this.ville = this.signin.ville;
+      this.dateEmbauche = this.signin.dateEmbauche;
+      console.log(this.mdp);
+
+    }
 
     //ecriture dans log sur la page chargement
     this.log = 'lancement de la creation de la bd /';
