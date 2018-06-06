@@ -9,6 +9,8 @@ import { BddApiGetUser } from '../../models/bddapi-getuser.model';
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 
+import { Network } from '@ionic-native/network';
+
 
 @Component({
   selector: 'page-connexion',
@@ -24,13 +26,25 @@ export class ConnexionPage {
   //mise en place du parsage de la reponse en JSON
   signin: BddApiGetUser = new BddApiGetUser();
 
-  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite) {
+  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite, private network: Network) {
     
   }
 
   public Signin() {
-    //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
-    this.bddService.getInfoVisiteur(this.login, this.password)
+    // watch network for a disconnect
+    let disconnectSubscription = this.network.onDisconnect().subscribe(() => {
+      console.log('network was disconnected :-(');
+    });
+
+    // stop disconnect watch
+    disconnectSubscription.unsubscribe();
+
+    // watch network for a connection
+    let connectSubscription = this.network.onConnect().subscribe(() => {
+      console.log('network connected!');
+
+      //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
+      this.bddService.getInfoVisiteur(this.login, this.password)
       .then(newsFetched => { // si reussi faire ....
         this.signin = newsFetched; // parssage de la r�ponse celon le models "signin" definit en tant que BddApiGetUser
 
@@ -44,11 +58,17 @@ export class ConnexionPage {
             next: AcceuilPage
 
           });
-          
+        
         } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
           this.error = 'Your login or password is not valid';
         }
       });
+
+    });
+
+    // stop connect watch
+    connectSubscription.unsubscribe();
+
   }
 
   public goToVersions() {
@@ -87,7 +107,12 @@ export class ConnexionPage {
             }
 
           })
-          .catch(() => { this.error = 'Lors de la premiere connection, il vous faut une connexion internet'; setTimeout(() => { this.Signin() }, 5000); });
+          .catch(() => { 
+            
+            this.error = 'Lors de la premiere connection, il vous faut une connexion internet'; 
+            setTimeout(() => { this.Signin() }, 5000); 
+
+          });
 
 
       })
