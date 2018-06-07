@@ -9,8 +9,6 @@ import { BddApiGetUser } from '../../models/bddapi-getuser.model';
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 
-import { Network } from '@ionic-native/network';
-
 
 @Component({
   selector: 'page-connexion',
@@ -26,48 +24,34 @@ export class ConnexionPage {
   //mise en place du parsage de la reponse en JSON
   signin: BddApiGetUser = new BddApiGetUser();
 
-  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite, private network: Network) {
+  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite) {
     
   }
 
   public Signin() {
-    // watch network for a disconnect
-    let disconnectSubscription = this.network.onDisconnect().subscribe(() => {
-      console.log('network was disconnected :-(');
-    });
+    this.error = 'debut signin ';
 
-    // stop disconnect watch
-    disconnectSubscription.unsubscribe();
+    //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
+    this.bddService.getInfoVisiteur(this.login, this.password)
+    .then(newsFetched => { // si reussi faire ....
+      this.signin = newsFetched; // parssage de la r�ponse celon le models "signin" definit en tant que BddApiGetUser
 
-    // watch network for a connection
-    let connectSubscription = this.network.onConnect().subscribe(() => {
-      console.log('network connected!');
+      if (this.signin.Success || this.testConnection) { // test de la reponse getSignin, False or True
 
-      //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
-      this.bddService.getInfoVisiteur(this.login, this.password)
-      .then(newsFetched => { // si reussi faire ....
-        this.signin = newsFetched; // parssage de la r�ponse celon le models "signin" definit en tant que BddApiGetUser
+        //Si true alors on passe � la page suivante en envoyant des informations � celle ci
+        this.navCtrl.push(ChargementPage, {
 
-        if (this.signin.Success || this.testConnection) { // test de la reponse getSignin, False or True
+          signin: this.signin.Visiteur,
+          styleLogin: "api",
+          next: AcceuilPage
 
-          //Si true alors on passe � la page suivante en envoyant des informations � celle ci
-          this.navCtrl.push(ChargementPage, {
-
-            signin: this.signin.Visiteur,
-            styleLogin: "api",
-            next: AcceuilPage
-
-          });
-        
-        } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
-          this.error = 'Your login or password is not valid';
-        }
-      });
-
-    });
-
-    // stop connect watch
-    connectSubscription.unsubscribe();
+        });
+      
+      } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
+        this.error = 'Your login or password is not valid';
+      }
+    })
+    .catch(() => this.error = 'Veuillez vérifier votre connexions internet')
 
   }
 

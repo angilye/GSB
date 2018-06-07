@@ -23,6 +23,8 @@ import { SQLite } from '@ionic-native/sqlite';
 
 import { HttpModule } from "@angular/http";
 
+import { Network } from '@ionic-native/network';
+
 @NgModule({
   declarations: [
     MyApp,
@@ -61,6 +63,7 @@ import { HttpModule } from "@angular/http";
     StatusBar,
     SplashScreen,
     SQLite,
+    Network,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

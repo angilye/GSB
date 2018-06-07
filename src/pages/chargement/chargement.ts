@@ -54,7 +54,6 @@ export class ChargementPage {
       this.cp = this.signin.cp;
       this.ville = this.signin.ville;
       this.dateEmbauche = this.signin.dateEmbauche;
-      console.log(this.mdp);
 
     }
 
@@ -132,7 +131,7 @@ export class ChargementPage {
           return;
         }
 
-        setTimeout(() => { this.navCtrl.push(this.nextpage) }, 30000);
+        setTimeout(() => { this.navCtrl.push(this.nextpage); this.log = this.log.concat('Tout est bon ca passe')}, 15000);
 
       })
       .catch(() => this.createTable(this.db));
