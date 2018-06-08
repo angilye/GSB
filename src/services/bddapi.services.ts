@@ -6,8 +6,9 @@ import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/map';
 
-import { BddApiSignin } from '../models/bddapi-signin.model';
-import { BddApiGetUser } from '../models/bddapi-getuser.model';
+import { BddApiSignin } from '../models/signin/bddapi-signin.model';
+import { BddApiGetUser } from '../models/getuser/bddapi-getuser.model';
+import { BddApiImportFirst } from '../models/ImportFirst/bddapi-ImportFirst.model';
 
 // Models
 // Importez models ici
@@ -39,6 +40,16 @@ export class BddService {
     return this.http.get(url)
       .toPromise()
       .then(response => response.json() as BddApiGetUser)
+      .catch(error => console.log('Une erreur est survenue ' + error))
+  }
+
+  // fonction servant à l'importation des tables lors de la premiere connexion.
+  public getTables(): Promise<any> {
+    const url = `${this.baseUrl}index.php?action=ImportFirst&id=1`;
+
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json() as BddApiImportFirst)
       .catch(error => console.log('Une erreur est survenue ' + error))
   }
   

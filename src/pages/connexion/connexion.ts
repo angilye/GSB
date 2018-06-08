@@ -5,7 +5,7 @@ import { VersionsPage } from '../versions/versions';
 import { ChargementPage } from '../chargement/chargement';
 
 import { BddService } from '../../services/bddapi.services';
-import { BddApiGetUser } from '../../models/bddapi-getuser.model';
+import { BddApiGetUser } from '../../models/getuser/bddapi-getuser.model';
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 

@@ -10,7 +10,8 @@ import { NavParams } from 'ionic-angular';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 
 import { BddService } from '../../services/bddapi.services';
-import { BddApiGetUser } from '../../models/bddapi-getuser.model';
+import { BddApiGetUser } from '../../models/getuser/bddapi-getuser.model';
+import { BddApiImportFirst } from '../../models/ImportFirst/bddapi-ImportFirst.model';
 
 @Component({
   selector: 'page-chargement',
@@ -25,6 +26,7 @@ export class ChargementPage {
   private nextpage: string; 
 
   private signin: BddApiGetUser = new BddApiGetUser();
+  private familleTable: BddApiImportFirst = new BddApiImportFirst();
 
   private id: string;
   private nom: string;
@@ -35,6 +37,9 @@ export class ChargementPage {
   private cp: string;
   private ville: string;
   private dateEmbauche: string;
+
+
+  private testConnection: boolean = false;
 
   constructor(public navCtrl: NavController, private navParams: NavParams, private sqlite: SQLite, private bddService: BddService) {
 
@@ -88,7 +93,7 @@ export class ChargementPage {
     db.sqlBatch([
       ['CREATE TABLE IF NOT EXISTS `visiteur` ( `id` INTEGER NOT NULL PRIMARY KEY UNIQUE, `nom` TEXT, `prenom` TEXT, `login` TEXT, `mdp` TEXT, `adresse` TEXT, `cp` INTEGER, `ville` TEXT, `dateEmbauche` TEXT )'],
       ['CREATE TABLE IF NOT EXISTS `famille` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `libelle` TEXT )'],
-      ['CREATE TABLE IF NOT EXISTS `medecin` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `tel` INTEGER, `specialiteComplementaire` TEXT, `departement` TEXT )'],
+      ['CREATE TABLE IF NOT EXISTS `medecin` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `adresse` TEXT, `cp` INTEGER, `ville` TEXT, `tel` INTEGER, `specialiteComplementaire` TEXT, `departement` TEXT )'],
       ['CREATE TABLE IF NOT EXISTS `medicament` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nomCommercial` TEXT, `idFamille` INTEGER, `composition` TEXT, `effets` TEXT, `contreIndications` TEXT, FOREIGN KEY(`idFamille`) REFERENCES `famille`(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `rapport` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `date` TEXT, `motif` TEXT, `bilan` TEXT, `idVisiteur` INTEGER, `idMedecin` INTEGER, FOREIGN KEY(`idMedecin`) REFERENCES `medecin`(`id`), FOREIGN KEY(`idVisiteur`) REFERENCES `visiteur`(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `offrir` ( `idRapport` INTEGER NOT NULL, `idMedicament` INTEGER NOT NULL, `quantite` INTEGER, FOREIGN KEY(`idRapport`) REFERENCES `rapport`(`id`), PRIMARY KEY(`idRapport`,`idMedicament`) )'],
@@ -97,7 +102,7 @@ export class ChargementPage {
       ['INSERT INTO suivieApp (id, creationDB, creationTables) VALUES(1,1,1)'],
       ['INSERT INTO visiteur (id, nom, prenom, login, mdp, adresse, cp, ville, dateEmbauche) VALUES(\'' + this.id + '\',\'' + this.nom + '\',\'' + this.prenom + '\',\'' + this.login + '\',\'' + this.mdp + '\',\'' + this.adresse+ '\',\'' + this.cp + '\',\'' + this.ville + '\',\'' + this.dateEmbauche + '\')']
     ])
-      .then(() => { this.log = this.log.concat('monter des tables fini'); this.verificationSiTableMonter(this.db);})  
+      .then(() => { this.log = this.log.concat('monter des tables fini'); this.ImportTables(this.db);})  
     .catch( () =>this.log = this.log.concat('monter des tables echouer'));
   }
 
@@ -131,10 +136,93 @@ export class ChargementPage {
           return;
         }
 
-        setTimeout(() => { this.navCtrl.push(this.nextpage); this.log = this.log.concat('Tout est bon ca passe')}, 15000);
+        setTimeout(() => { 
+          this.navCtrl.push(this.nextpage); 
+          this.log = this.log.concat('Tout est bon ca passe')
+        }, 15000);
 
       })
       .catch(() => this.createTable(this.db));
+  }
+
+  public ImportTables(db: SQLiteObject) {
+    //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
+    this.bddService.getTables()
+      .then(newsFetched => { // si reussi faire ....
+        this.familleTable = newsFetched; // parssage de la r�ponse celon le models "importFirst" definit en tant que BddApiImportFirst
+
+        if (this.familleTable.Success || this.testConnection) { // test de la reponse ImportFirst, False or True
+
+          // parcours de la liste contenue dans familleTable.Famille
+          this.familleTable.Famille.forEach(element => {
+            // insertion des elements recu par l'API dans la tables local
+            db.executeSql('INSERT INTO famille (id, libelle) VALUES(\'' + element.id + '\',\'' + element.libelle + '\')', {})
+              .then((data) => {
+                // le temps des test peux etre virer apres.
+                this.log = this.log.concat(element.id);
+
+              })
+              .catch(() => this.log = this.log.concat('errorF'));
+
+          });
+
+          this.familleTable.Medecin.forEach(element => {
+            // insertion des elements recu par l'API dans la tables local
+            db.executeSql('INSERT INTO medecin (id, nom, prenom, adresse, cp, ville, tel, specialiteComplementaire, departement) VALUES(\'' + element.id + '\',\'' + element.nom + '\',\'' + element.prenom + '\',\'' + element.adresse + '\',\'' + element.cp + '\',\'' + element.ville + '\',\'' + element.tel + '\',\'' + element.specialiteComplementaire + '\',\'' + element.departement + '\')', {})
+              .then((data) => {
+                // le temps des test peux etre virer apres.
+                this.log = this.log.concat(element.id);
+
+              })
+              .catch(() => this.log = this.log.concat('errorM'));
+
+          });
+
+          this.familleTable.Medicament.forEach(element => {
+            // insertion des elements recu par l'API dans la tables local
+            db.executeSql('INSERT INTO medicament (id, nomCommercial, idFamille, composition, effets, contreIndications) VALUES(\'' + element.id + '\',\'' + element.nomCommercial + '\',\'' + element.idFamille + '\',\'' + element.composition + '\',\'' + element.effets + '\',\'' + element.contreIndications + '\')', {})
+              .then((data) => {
+                // le temps des test peux etre virer apres.
+                this.log = this.log.concat(element.id);
+
+              })
+              .catch(() => this.log = this.log.concat('errorMe'));
+
+          });
+
+          this.familleTable.Offrir.forEach(element => {
+            // insertion des elements recu par l'API dans la tables local
+            db.executeSql('INSERT INTO offir (idRapport, idMedicament) VALUES(\'' + element.idRapport + '\',\'' + element.idMedicament + '\')', {})
+              .then((data) => {
+                // le temps des test peux etre virer apres.
+                this.log = this.log.concat(element.idRapport);
+
+              })
+              .catch(() => this.log = this.log.concat('errorO'));
+
+          });
+
+          this.familleTable.Rapport.forEach(element => {
+            // insertion des elements recu par l'API dans la tables local
+            db.executeSql('INSERT INTO rapport (id, date, motif, bilan, idVisiteur, idMedecin) VALUES(\'' + element.id + '\',\'' + element.date + '\',\'' + element.motif + '\',\'' + element.bilan + '\',\'' + element.idVisiteur + '\',\'' + element.idMedecin + '\')', {})
+              .then((data) => {
+                // le temps des test peux etre virer apres.
+                this.log = this.log.concat(element.id);
+
+              })
+              .catch(() => this.log = this.log.concat('errorR'));
+
+          });
+
+          this.verificationSiTableMonter(this.db);
+          
+
+        } else { // si faux alors affichage de l'erreur dans la variable error afficher dans html
+          this.log = 'Une erreur dans l envoie ou la reception des donnée de l API ';
+        }
+      })
+      .catch(() => this.log = 'Veuillez vérifier votre connexions internet')
+
   }
   
 }
