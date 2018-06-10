@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 
 import { AcceuilPage } from '../acceuil/acceuil';
 
@@ -8,10 +9,12 @@ import { NavParams } from 'ionic-angular';
 
 //permet la gestion de la BDD locale.
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+import { Storage } from '@ionic/storage';
 
 import { BddService } from '../../services/bddapi.services';
 import { BddApiGetUser } from '../../models/getuser/bddapi-getuser.model';
 import { BddApiImportFirst } from '../../models/ImportFirst/bddapi-ImportFirst.model';
+
 
 @Component({
   selector: 'page-chargement',
@@ -41,7 +44,7 @@ export class ChargementPage {
 
   private testConnection: boolean = false;
 
-  constructor(public navCtrl: NavController, private navParams: NavParams, private sqlite: SQLite, private bddService: BddService) {
+  constructor(public navCtrl: NavController, private navParams: NavParams, private sqlite: SQLite, private bddService: BddService, private storage: Storage) {
 
     // récuperation d'information transmise par la page d'avant.
     this.nextpage = navParams.get('next'); 
@@ -60,6 +63,7 @@ export class ChargementPage {
       this.ville = this.signin.ville;
       this.dateEmbauche = this.signin.dateEmbauche;
 
+      this.storage.set('idVisiteurConnecte', this.signin.id.toString());
     }
 
     //ecriture dans log sur la page chargement
@@ -93,13 +97,18 @@ export class ChargementPage {
     db.sqlBatch([
       ['CREATE TABLE IF NOT EXISTS `visiteur` ( `id` INTEGER NOT NULL PRIMARY KEY UNIQUE, `nom` TEXT, `prenom` TEXT, `login` TEXT, `mdp` TEXT, `adresse` TEXT, `cp` INTEGER, `ville` TEXT, `dateEmbauche` TEXT )'],
       ['CREATE TABLE IF NOT EXISTS `famille` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `libelle` TEXT )'],
-      ['CREATE TABLE IF NOT EXISTS `medecin` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `adresse` TEXT, `cp` INTEGER, `ville` TEXT, `tel` INTEGER, `specialiteComplementaire` TEXT, `departement` TEXT )'],
+      ['CREATE TABLE IF NOT EXISTS `medecin` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `adresse` TEXT, `cp` TEXT, `ville` TEXT, `tel` TEXT, `specialiteComplementaire` TEXT, `category_id` INTEGER, `departement` TEXT, FOREIGN KEY(`category_id`) REFERENCES categories(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `medicament` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nomCommercial` TEXT, `idFamille` INTEGER, `composition` TEXT, `effets` TEXT, `contreIndications` TEXT, FOREIGN KEY(`idFamille`) REFERENCES `famille`(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `rapport` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `date` TEXT, `motif` TEXT, `bilan` TEXT, `idVisiteur` INTEGER, `idMedecin` INTEGER, FOREIGN KEY(`idMedecin`) REFERENCES `medecin`(`id`), FOREIGN KEY(`idVisiteur`) REFERENCES `visiteur`(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `offrir` ( `idRapport` INTEGER NOT NULL, `idMedicament` INTEGER NOT NULL, `quantite` INTEGER, FOREIGN KEY(`idRapport`) REFERENCES `rapport`(`id`), PRIMARY KEY(`idRapport`,`idMedicament`) )'],
       ['CREATE TABLE IF NOT EXISTS `suivieApp` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `creationDB` INTEGER DEFAULT 0, `creationTables` INTEGER DEFAULT 0, `dateDernierImportInformationViaApi` TEXT, `dateDerniereConnexionSurApp` TEXT, `modifViaApiEnAttente` INTEGER DEFAULT 0, `versionApp` TEXT DEFAULT 0.1 )'],
-      ['CREATE TABLE IF NOT EXISTS `attenteEnvoieAPI` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `enteteUrl` TEXT NOT NULL, `requete` TEXT NOT NULL )'],
-      ['INSERT INTO suivieApp (id, creationDB, creationTables) VALUES(1,1,1)'],
+      ['CREATE TABLE IF NOT EXISTS `attenteEnvoieAPI` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `id1` TEXT NOT NULL, `id2` TEXT, `action` TEXT NOT NULL, `tableAction` TEXT NOT NULL)'],
+      ['CREATE TABLE IF NOT EXISTS `categories` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `name` TEXT)'],
+      ['INSERT INTO suivieApp (id, creationDB, creationTables) VALUES(1,1,1)'], 
+      ['insert into categories (id, name) values (1,?)', ['Medecin']],
+      ['insert into categories (id, name) values (2,?)', ['Pharmacien']],
+      ['insert into categories (id, name) values (3,?)', ['Chef de Clinique']],
+      ['insert into categories (id, name) values (4,?)', ['Autre']],
       ['INSERT INTO visiteur (id, nom, prenom, login, mdp, adresse, cp, ville, dateEmbauche) VALUES(\'' + this.id + '\',\'' + this.nom + '\',\'' + this.prenom + '\',\'' + this.login + '\',\'' + this.mdp + '\',\'' + this.adresse+ '\',\'' + this.cp + '\',\'' + this.ville + '\',\'' + this.dateEmbauche + '\')']
     ])
       .then(() => { this.log = this.log.concat('monter des tables fini'); this.ImportTables(this.db);})  
@@ -116,7 +125,8 @@ export class ChargementPage {
       ['DROP TABLE IF EXISTS`rapport`;'],
       ['DROP TABLE IF EXISTS`offrir`;'],
       ['DROP TABLE IF EXISTS`suivieApp`;'],
-      ['DROP TABLE IF EXISTS`attenteEnvoieAPI`;']
+      ['DROP TABLE IF EXISTS`attenteEnvoieAPI`;'],
+      ['DROP TABLE IF EXISTS`categories`;']
     ])
       .then(() => {
 
@@ -139,7 +149,7 @@ export class ChargementPage {
         setTimeout(() => { 
           this.navCtrl.push(this.nextpage); 
           this.log = this.log.concat('Tout est bon ca passe')
-        }, 15000);
+        }, 5000);
 
       })
       .catch(() => this.createTable(this.db));
@@ -147,7 +157,7 @@ export class ChargementPage {
 
   public ImportTables(db: SQLiteObject) {
     //appel de la fonction bddService et transmission des donn�es pour l'appel � l'API
-    this.bddService.getTables()
+    this.bddService.getTables(this.id)
       .then(newsFetched => { // si reussi faire ....
         this.familleTable = newsFetched; // parssage de la r�ponse celon le models "importFirst" definit en tant que BddApiImportFirst
 
@@ -158,6 +168,11 @@ export class ChargementPage {
             // insertion des elements recu par l'API dans la tables local
             db.executeSql('INSERT INTO famille (id, libelle) VALUES(\'' + element.id + '\',\'' + element.libelle + '\')', {})
               .then((data) => {
+
+                if (data == null) {
+                  return;
+                }
+
                 // le temps des test peux etre virer apres.
                 this.log = this.log.concat(element.id);
 
@@ -168,10 +183,14 @@ export class ChargementPage {
 
           this.familleTable.Medecin.forEach(element => {
             // insertion des elements recu par l'API dans la tables local
-            db.executeSql('INSERT INTO medecin (id, nom, prenom, adresse, cp, ville, tel, specialiteComplementaire, departement) VALUES(\'' + element.id + '\',\'' + element.nom + '\',\'' + element.prenom + '\',\'' + element.adresse + '\',\'' + element.cp + '\',\'' + element.ville + '\',\'' + element.tel + '\',\'' + element.specialiteComplementaire + '\',\'' + element.departement + '\')', {})
+            db.executeSql('INSERT INTO medecin (id, nom, prenom, adresse, cp, ville, tel, specialiteComplementaire, category_id, departement) VALUES(\'' + element.id + '\',\'' + element.nom + '\',\'' + element.prenom + '\',\'' + element.adresse + '\',\'' + element.cp + '\',\'' + element.ville + '\',\'' + element.tel + '\',\'' + element.specialiteComplementaire + '\',\'' + element.category_id + '\',\'' + element.departement + '\')', {})
               .then((data) => {
+
+                if ( data == null ){
+                  return;
+                }
                 // le temps des test peux etre virer apres.
-                this.log = this.log.concat(element.id);
+                this.log = this.log.concat(element.id.toString());
 
               })
               .catch(() => this.log = this.log.concat('errorM'));
@@ -182,6 +201,11 @@ export class ChargementPage {
             // insertion des elements recu par l'API dans la tables local
             db.executeSql('INSERT INTO medicament (id, nomCommercial, idFamille, composition, effets, contreIndications) VALUES(\'' + element.id + '\',\'' + element.nomCommercial + '\',\'' + element.idFamille + '\',\'' + element.composition + '\',\'' + element.effets + '\',\'' + element.contreIndications + '\')', {})
               .then((data) => {
+
+                if (data == null) {
+                  return;
+                }
+
                 // le temps des test peux etre virer apres.
                 this.log = this.log.concat(element.id);
 
@@ -194,6 +218,11 @@ export class ChargementPage {
             // insertion des elements recu par l'API dans la tables local
             db.executeSql('INSERT INTO offir (idRapport, idMedicament) VALUES(\'' + element.idRapport + '\',\'' + element.idMedicament + '\')', {})
               .then((data) => {
+
+                if (data == null) {
+                  return;
+                }
+
                 // le temps des test peux etre virer apres.
                 this.log = this.log.concat(element.idRapport);
 
@@ -206,6 +235,11 @@ export class ChargementPage {
             // insertion des elements recu par l'API dans la tables local
             db.executeSql('INSERT INTO rapport (id, date, motif, bilan, idVisiteur, idMedecin) VALUES(\'' + element.id + '\',\'' + element.date + '\',\'' + element.motif + '\',\'' + element.bilan + '\',\'' + element.idVisiteur + '\',\'' + element.idMedecin + '\')', {})
               .then((data) => {
+
+                if (data == null) {
+                  return;
+                }
+
                 // le temps des test peux etre virer apres.
                 this.log = this.log.concat(element.id);
 

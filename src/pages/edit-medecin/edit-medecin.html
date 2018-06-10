@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+     Creer ou modifier 
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+ 
+<ion-content padding>
+   <ion-list>
+      <ion-item color="positive">
+          <ion-icon name="archive" item-left></ion-icon>
+           Informations Medecins
+       </ion-item>
+  
+     <ion-item>
+      <ion-label stacked>Nom</ion-label>
+      <ion-input type="text" name="nom" [(ngModel)]="model.nom"></ion-input>
+    </ion-item>
+ 
+    <ion-item>
+      <ion-label stacked>Prenom</ion-label>
+      <ion-input type="text" name="prenom" [(ngModel)]="model.prenom"></ion-input>
+    </ion-item>
+   
+    <ion-item>
+      <ion-label stacked>Adresse</ion-label>
+      <ion-input type="text" name="adresse" [(ngModel)]="model.adresse"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Code Postale</ion-label>
+      <ion-input type="number" name="cp" [(ngModel)]="model.cp"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Ville</ion-label>
+      <ion-input type="text" name="ville" [(ngModel)]="model.ville"></ion-input>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label stacked>Téléphone</ion-label>
+      <ion-input type="number" name="tel" [(ngModel)]="model.tel"></ion-input>
+    </ion-item>
+   
+    <ion-item>
+      <ion-label stacked>Spécialité Complementaire</ion-label>
+      <ion-input type="text" name="specialiteComplementaire" [(ngModel)]="model.specialiteComplementaire"></ion-input>
+    </ion-item>
+    
+   
+    <ion-item>
+      <ion-label stacked>Département</ion-label>
+      <ion-input type="number" name="departement" [(ngModel)]="model.departement"></ion-input>
+    </ion-item>
+ 
+    <ion-item>
+      <ion-label stacked>Categorie</ion-label>
+      <ion-select name="category_id" [(ngModel)]="model.category_id">
+          <ion-option *ngFor="let category of categories" value="{{ category.id }}">{{ category.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+    
+    <button ion-button block (click)="save()">Enregistrer</button>
+
+  </ion-list>
+ 
+</ion-content>
+
+

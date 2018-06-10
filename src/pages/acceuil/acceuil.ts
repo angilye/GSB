@@ -7,13 +7,15 @@ import { GESTIONMEDECINSPage } from '../g-estionmedecins/g-estionmedecins';
 import { PROFILDUMEDECINPage } from '../p-rofildumedecin/p-rofildumedecin';
 import { MDecinsPage } from '../m-decins/m-decins';
 
+import { BddService } from '../../services/bddapi.services';
+
 @Component({
   selector: 'page-acceuil',
   templateUrl: 'acceuil.html'
 })
 export class AcceuilPage {
-
-  constructor(public navCtrl: NavController) {
+  error:string;
+  constructor(public navCtrl: NavController, private bddService: BddService) {
   }
   goToGESTIONRAPPORTS(params){
     if (!params) params = {};
@@ -33,5 +35,9 @@ export class AcceuilPage {
   }goToMDecins(params){
     if (!params) params = {};
     this.navCtrl.push(MDecinsPage);
+  }
+
+  synchronisation() {
+    this.bddService.pushRequeteSave();
   }
 }

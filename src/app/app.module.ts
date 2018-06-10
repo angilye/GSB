@@ -12,6 +12,7 @@ import { PROFILDUMEDECINPage } from '../pages/p-rofildumedecin/p-rofildumedecin'
 import { MDecinsPage } from '../pages/m-decins/m-decins';
 import { VersionsPage } from '../pages/versions/versions';
 import { ChargementPage } from '../pages/chargement/chargement';
+import { EditMedecinPage } from '../pages/edit-medecin/edit-medecin';
 
 import { BddService } from '../services/bddapi.services';
 
@@ -20,10 +21,15 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { SQLite } from '@ionic-native/sqlite';
+import { IonicStorageModule } from '@ionic/storage';
 
 import { HttpModule } from "@angular/http";
 
-import { Network } from '@ionic-native/network';
+// import { Network } from '@ionic-native/network';
+
+import { DatabaseProvider } from '../providers/database/database.provider';
+import { MedecinProvider } from '../providers/medecin/medecin.provider';
+import { CategoryProvider } from '../providers/category/category.provider';
 
 @NgModule({
   declarations: [
@@ -37,12 +43,14 @@ import { Network } from '@ionic-native/network';
     PROFILDUMEDECINPage,
     MDecinsPage,
     VersionsPage,
+    EditMedecinPage,
     ChargementPage
   ],
   imports: [
     HttpModule,
     BrowserModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -56,14 +64,18 @@ import { Network } from '@ionic-native/network';
     PROFILDUMEDECINPage,
     MDecinsPage,
     VersionsPage,
-    ChargementPage
+    ChargementPage,
+    EditMedecinPage
   ],
   providers: [
     BddService,
     StatusBar,
     SplashScreen,
     SQLite,
-    Network,
+    // Network,
+    DatabaseProvider,
+    MedecinProvider,
+    CategoryProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

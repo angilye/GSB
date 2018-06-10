@@ -9,6 +9,8 @@ import { BddApiGetUser } from '../../models/getuser/bddapi-getuser.model';
 
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 
+import { Storage } from '@ionic/storage';
+
 
 @Component({
   selector: 'page-connexion',
@@ -24,7 +26,7 @@ export class ConnexionPage {
   //mise en place du parsage de la reponse en JSON
   signin: BddApiGetUser = new BddApiGetUser();
 
-  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite) {
+  constructor(public navCtrl: NavController, private bddService: BddService, private sqlite: SQLite, private storage: Storage) {
     
   }
 
@@ -70,7 +72,7 @@ export class ConnexionPage {
     })
       .then((db: SQLiteObject) => {
 
-        db.executeSql('SELECT login, mdp FROM `visiteur`;', {})
+        db.executeSql('SELECT login, mdp, id FROM `visiteur`;', {})
           .then((data) => {
 
             if (data == null) {
@@ -78,6 +80,8 @@ export class ConnexionPage {
             }
 
             if (data.rows.item(0).login == this.login && data.rows.item(0).mdp == this.password) {
+
+              this.storage.set('idVisiteurConnecte', data.rows.item(0).id.toString());
 
               this.navCtrl.push(ChargementPage, {
 
