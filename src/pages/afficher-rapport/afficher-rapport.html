@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Gestion des Rapports
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+ 
+<ion-content padding>
+  <img src="assets/img/K9NZfwOuQuG093bva0to_checklist.jpg" style="display:block;width:40%;height:auto;margin-left:auto;margin-right:auto;" />
+  
+  <ion-searchbar (ionInput)="filterRapports($event)" [(ngModel)]="searchDate"></ion-searchbar>
+    <ion-list>
+    <ion-item-sliding *ngFor="let rapport of rapports">
+      <button ion-item (click)="editRapport(rapport.id)">
+        <h1>{{ rapport.date | date: 'dd/MM/yyyy'}}</h1>
+        <p> {{ rapport.praticien_nom }} </p> 
+        <p class="bilan"> {{ rapport.bilan }} </p>
+      </button>
+
+      <ion-item-options side="right">
+        <button ion-button color="danger" (click)="removeRapport(rapport)">
+          <ion-icon name="trash"></ion-icon>
+          Supprimer
+        </button>
+     </ion-item-options>
+     
+  </ion-item-sliding>
+</ion-list>
+ 
+  <ion-fab right bottom>
+    <button ion-fab color="light" (click)="addRapport()"><ion-icon name="add"></ion-icon></button>
+  </ion-fab>
+ </ion-content>

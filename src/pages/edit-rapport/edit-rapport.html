@@ -1,0 +1,82 @@
+<ion-header>
+    <ion-navbar>
+      <ion-title>
+        Créer ou Modifier
+      </ion-title>
+    </ion-navbar>
+  </ion-header>
+
+  <ion-content padding>
+    <ion-list>
+      <ion-item color="positive">
+        <ion-icon name="archive" item-left></ion-icon>
+         Les Rapports
+      </ion-item>
+
+      <ion-item>
+        <ion-label stacked> Date </ion-label>
+        <ion-datetime type="date" displayFormat="DD/MM/YYYY" pickerFormat="DD/MMM/YYYY" [(ngModel)]="model.date" name="date"></ion-datetime>
+      </ion-item>
+  
+      <ion-item >
+        <ion-label stacked > Motif </ion-label>
+        <ion-textarea type="text" [(ngModel)]="model.motif" name="motif"></ion-textarea>
+      </ion-item>
+  
+      <ion-item >
+        <ion-label stacked> Bilan </ion-label>
+        <ion-textarea type="text" [(ngModel)]="model.bilan" name="bilan" ></ion-textarea>
+      </ion-item>
+
+      <div *ngIf="idFournie != null; then thenBlock else elseBlock" ></div>
+      <ng-template #elseBlock>
+
+        <ion-item>
+          <ion-label stacked>Medicament</ion-label>
+          <ion-select name="medID" [(ngModel)]="model.idMedicament" multiple="false">
+            <ion-option *ngFor="let medicament of medicaments" value="{{medicament.id}}">{{medicament.nomCommercial}}</ion-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label stacked> Nombre d'échantillon </ion-label>
+          <ion-input type="number" [(ngModel)]="model.quantite" name="nbEchantillon"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label stacked>Praticien</ion-label>
+          <ion-select name="praID" [(ngModel)]="model.idMedecin">
+            <ion-option *ngFor="let praticien of praticiens" value="{{praticien.id}}">{{praticien.nom}}-{{praticien.prenom}} ( {{ praticien.category_name}} )</ion-option>
+          </ion-select>
+        </ion-item>
+
+    </ng-template>
+
+      <ng-template #thenBlock>
+        
+        <ion-item>
+          <ion-label stacked>Medicament</ion-label>
+          <ion-select name="medID" [(ngModel)]="model.idMedicament" multiple="false">
+            <ion-option *ngFor="let medicament of medicaments" value="{{medicament.id}}">{{medicament.nomCommercial}}</ion-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label stacked> Nombre d'échantillon </ion-label>
+          <ion-textarea type="number" [(ngModel)]="model.quantite" name="quantite">12</ion-textarea>
+        </ion-item>
+        <ion-item>
+          <ion-label stacked>Praticien</ion-label>
+          <ion-select name="praID" [(ngModel)]="model.idMedecin">
+            <ion-option *ngFor="let praticien of praticiens" value="{{praticien.id}}">{{praticien.nom}}-{{praticien.prenom}} ( {{ praticien.category_name}} )</ion-option>
+          </ion-select>
+        </ion-item>
+
+      </ng-template>  
+        
+      
+
+<br>
+
+      <button ion-button type="submit" block on-click ="save()">Enregistrer</button>
+     
+   </ion-list> 
+    
+  </ion-content>

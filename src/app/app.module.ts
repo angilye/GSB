@@ -5,14 +5,14 @@ import { MyApp } from './app.component';
 import { ConnexionPage } from '../pages/connexion/connexion';
 import { AcceuilPage } from '../pages/acceuil/acceuil';
 import { GESTIONRAPPORTSPage } from '../pages/g-estionrapports/g-estionrapports';
-import { NOUVEAURAPPORTPage } from '../pages/n-ouveaurapport/n-ouveaurapport';
-import { MODIFIERRAPPORTPage } from '../pages/m-odifierrapport/m-odifierrapport';
+import { NOUVEAURAPPORTPage } from '../pages/n-ouveaurapport/n-ouveaurapport';//
 import { GESTIONMEDECINSPage } from '../pages/g-estionmedecins/g-estionmedecins';
-import { PROFILDUMEDECINPage } from '../pages/p-rofildumedecin/p-rofildumedecin';
 import { MDecinsPage } from '../pages/m-decins/m-decins';
 import { VersionsPage } from '../pages/versions/versions';
 import { ChargementPage } from '../pages/chargement/chargement';
 import { EditMedecinPage } from '../pages/edit-medecin/edit-medecin';
+import { AfficherRapportPage } from '../pages/afficher-rapport/afficher-rapport';
+import { EditRapportPage } from '../pages/edit-rapport/edit-rapport';
 
 import { BddService } from '../services/bddapi.services';
 
@@ -30,6 +30,8 @@ import { HttpModule } from "@angular/http";
 import { DatabaseProvider } from '../providers/database/database.provider';
 import { MedecinProvider } from '../providers/medecin/medecin.provider';
 import { CategoryProvider } from '../providers/category/category.provider';
+import { RapportProvider } from '../providers/rapport/rapport.provider';
+import { MedicamentProvider } from '../providers/medicament/medicament.provider';
 
 @NgModule({
   declarations: [
@@ -38,13 +40,13 @@ import { CategoryProvider } from '../providers/category/category.provider';
     AcceuilPage,
     GESTIONRAPPORTSPage,
     NOUVEAURAPPORTPage,
-    MODIFIERRAPPORTPage,
     GESTIONMEDECINSPage,
-    PROFILDUMEDECINPage,
     MDecinsPage,
     VersionsPage,
     EditMedecinPage,
-    ChargementPage
+    ChargementPage,
+    AfficherRapportPage,
+    EditRapportPage
   ],
   imports: [
     HttpModule,
@@ -59,13 +61,13 @@ import { CategoryProvider } from '../providers/category/category.provider';
     AcceuilPage,
     GESTIONRAPPORTSPage,
     NOUVEAURAPPORTPage,
-    MODIFIERRAPPORTPage,
     GESTIONMEDECINSPage,
-    PROFILDUMEDECINPage,
     MDecinsPage,
     VersionsPage,
     ChargementPage,
-    EditMedecinPage
+    EditMedecinPage,
+    AfficherRapportPage, 
+    EditRapportPage
   ],
   providers: [
     BddService,
@@ -76,6 +78,8 @@ import { CategoryProvider } from '../providers/category/category.provider';
     DatabaseProvider,
     MedecinProvider,
     CategoryProvider,
+    RapportProvider,
+    MedicamentProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

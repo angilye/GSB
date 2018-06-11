@@ -15,6 +15,7 @@ import { BddApiImportFirst } from '../models/ImportFirst/bddapi-ImportFirst.mode
 
 // class import
 import { Medecin } from '../providers/medecin/medecin.provider';
+import { Rapport } from '../providers/rapport/rapport.provider';
 
 import { DatabaseProvider } from '../providers/database/database.provider';
 
@@ -73,6 +74,7 @@ export class BddService {
 
     let test: BddApiSignin = new BddApiSignin;
     let donnee: Medecin = new Medecin;
+    let donneeRapport: Rapport;
 
     let url: string;
     
@@ -87,6 +89,7 @@ export class BddService {
             let idAttenteEnvoieAPI: string = '';
             let requeteAction: string = '';
             let requeteId1: string = '';
+            let requeteId2: string = '';
             let requeteTable: string = '';
             
             for (var i = 0; i < requeteStocker.rows.length; i++) {
@@ -94,32 +97,37 @@ export class BddService {
               idAttenteEnvoieAPI = requeteStocker.rows.item(i).id;
               requeteAction = requeteStocker.rows.item(i).action;
               requeteId1 = requeteStocker.rows.item(i).id1;
+
+              if (requeteStocker.rows.item(i).id2 != null) {
+                requeteId2 = requeteStocker.rows.item(i).id2;
+              }
+
               requeteTable = requeteStocker.rows.item(i).tableAction;
 
-              if (requeteAction == "remove") {
-                
-                url = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=${requeteAction}&tableAction=${requeteTable}&id=${requeteId1}&idVisiteur=${this.idVisiteurConnecte}`;
-                this.http.get(url)
-                  .toPromise()
-                  .then(response => {
-                    test = response.json() as BddApiSignin
-                    if (test.Success) {
-                      db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
-                    }
-                  })
-                  .catch(error => console.log('Une erreur est survenue ' + error));
+              if (requeteTable == "medecin") {
 
-              }else if (requeteAction == "insert") {
+                if (requeteAction == "remove") {
+                  
+                  url = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=${requeteAction}&tableAction=${requeteTable}&id=${requeteId1}&idVisiteur=${this.idVisiteurConnecte}`;
+                  this.http.get(url)
+                    .toPromise()
+                    .then(response => {
+                      test = response.json() as BddApiSignin
+                      if (test.Success) {
+                        db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                      }
+                    })
+                    .catch(error => console.log('Une erreur est survenue ' + error));
 
-                db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE id=\'' + requeteId1 + '\' ', {})
-                  .then((data) => {
-                    
-                    if (data.rows.length > 0) {
+                }else if (requeteAction == "insert") {
+
+                  db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE id=\'' + requeteId1 + '\' ', {})
+                    .then((data) => {
                       
-                      for (var i = 0; i < data.rows.length; i++) {
+                      if (data.rows.length > 0) {
                         
-                        if (requeteTable == "medecin") {
-
+                        for (var i = 0; i < data.rows.length; i++) {
+                          
                           donnee.id = data.rows.item(i).id;
                           donnee.nom = data.rows.item(i).nom;
                           donnee.prenom = data.rows.item(i).prenom;
@@ -130,35 +138,32 @@ export class BddService {
                           donnee.specialiteComplementaire = data.rows.item(i).specialiteComplementaire;
                           donnee.departement = data.rows.item(i).departement;
                           donnee.category_id = data.rows.item(i).category_id;
-                        }
 
-                        let urlI = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=insert&tableAction=${requeteTable}&idVisiteur=${this.idVisiteurConnecte}&id=${donnee.id}&nom=${donnee.nom}&prenom=${donnee.prenom}&adresse=${donnee.adresse}&cp=${donnee.cp}&ville=${donnee.ville}&tel=${donnee.tel}&specialiteComplementaire=${donnee.specialiteComplementaire}&departement=${donnee.departement}&category_id=${donnee.category_id}`;
-                        this.http.get(urlI)
-                          .toPromise()
-                          .then(response => {
-                            test = response.json() as BddApiSignin
-                            if (test.Success) {
-                              db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
-                            }
-                          })
-                          .catch(error => console.log('Une erreur est survenue ' + error));
+                          let urlI = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=insert&tableAction=${requeteTable}&idVisiteur=${this.idVisiteurConnecte}&id=${donnee.id}&nom=${donnee.nom}&prenom=${donnee.prenom}&adresse=${donnee.adresse}&cp=${donnee.cp}&ville=${donnee.ville}&tel=${donnee.tel}&specialiteComplementaire=${donnee.specialiteComplementaire}&departement=${donnee.departement}&category_id=${donnee.category_id}`;
+                          this.http.get(urlI)
+                            .toPromise()
+                            .then(response => {
+                              test = response.json() as BddApiSignin
+                              if (test.Success) {
+                                db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                              }
+                            })
+                            .catch(error => console.log('Une erreur est survenue ' + error));
+
+                        }
 
                       }
 
-                    }
+                    });
 
-                  });
+                } else if (requeteAction == "update") {
 
-              } else if (requeteAction == "update") {
+                  db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE id=\'' + requeteId1 + '\' ', {})
+                    .then((data) => {
 
-                db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE id=\'' + requeteId1 + '\' ', {})
-                  .then((data) => {
+                      if (data.rows.length > 0) {
 
-                    if (data.rows.length > 0) {
-
-                      for (var i = 0; i < data.rows.length; i++) {
-
-                        if (requeteTable == "medecin") {
+                        for (var i = 0; i < data.rows.length; i++) {
 
                           donnee.id = data.rows.item(i).id;
                           donnee.nom = data.rows.item(i).nom;
@@ -170,24 +175,190 @@ export class BddService {
                           donnee.specialiteComplementaire = data.rows.item(i).specialiteComplementaire;
                           donnee.departement = data.rows.item(i).departement;
                           donnee.category_id = data.rows.item(i).category_id;
+
+                          let urlU = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=update&tableAction=${requeteTable}&idVisiteur=${this.idVisiteurConnecte}&id=${donnee.id}&nom=${donnee.nom}&prenom=${donnee.prenom}&adresse=${donnee.adresse}&cp=${donnee.cp}&ville=${donnee.ville}&tel=${donnee.tel}&specialiteComplementaire=${donnee.specialiteComplementaire}&departement=${donnee.departement}&category_id=${donnee.category_id}`;
+                          this.http.get(urlU)
+                            .toPromise()
+                            .then(response => {
+                              test = response.json() as BddApiSignin
+                              if (test.Success) {
+                                db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                              }
+                            })
+                            .catch(error => console.log('Une erreur est survenue ' + error));
+
+                          }
+
+                      }
+
+                    });
+
+                }
+
+              } else if (requeteTable == "rapport") {
+
+                if (requeteAction == "remove") {
+                  const urle = `https://gsb-api-angelye.c9users.io/index.php?action=test&actionSQL=debutRemove`; this.http.get(urle).toPromise();
+                  url = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=${requeteAction}&tableAction=${requeteTable}&id=${requeteId1}&idVisiteur=${this.idVisiteurConnecte}`;
+                  this.http.get(url)
+                    .toPromise()
+                    .then(response => {
+                      test = response.json() as BddApiSignin
+                      const urle = `https://gsb-api-angelye.c9users.io/index.php?action=test&actionSQL=debutpromesse`; this.http.get(urle).toPromise();
+                      if (test.Success) {
+                        const urle = `https://gsb-api-angelye.c9users.io/index.php?action=test&actionSQL=success`; this.http.get(urle).toPromise();
+                        db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                          .then(() => { const urle = `https://gsb-api-angelye.c9users.io/index.php?action=test&actionSQL=lacondetoi`; this.http.get(urle).toPromise();});
+                      }
+                    })
+                    .catch(error => console.log('Une erreur est survenue ' + error));
+
+                } else if (requeteAction == "insert") {
+
+                  db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE id=\'' + requeteId1 + '\' ', {})
+                    .then((data) => {
+
+                      if (data.rows.length > 0) {
+
+                        for (var i = 0; i < data.rows.length; i++) {
+
+                          donneeRapport.id = data.rows.item(i).id;
+                          donneeRapport.date = data.rows.item(i).date;
+                          donneeRapport.motif = data.rows.item(i).motif;
+                          donneeRapport.bilan = data.rows.item(i).bilan;
+                          donneeRapport.idVisiteur = data.rows.item(i).idVisiteur;
+                          donneeRapport.idMedecin = data.rows.item(i).idMedecin;
+
+                          let urlI = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=insert&tableAction=${requeteTable}&id=18&date=${donneeRapport.date}&motif=${donneeRapport.motif}&bilan=${donneeRapport.bilan}&idVisiteur=${donneeRapport.idVisiteur}&idMedecin=${donneeRapport.idMedecin}`;
+                          this.http.get(urlI)
+                            .toPromise()
+                            .then(response => {
+                              test = response.json() as BddApiSignin
+                              if (test.Success) {
+                                db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                              }
+                            })
+                            .catch(error => console.log('Une erreur est survenue ' + error));
+
                         }
 
-                        let urlU = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=update&tableAction=${requeteTable}&idVisiteur=${this.idVisiteurConnecte}&id=${donnee.id}&nom=${donnee.nom}&prenom=${donnee.prenom}&adresse=${donnee.adresse}&cp=${donnee.cp}&ville=${donnee.ville}&tel=${donnee.tel}&specialiteComplementaire=${donnee.specialiteComplementaire}&departement=${donnee.departement}&category_id=${donnee.category_id}`;
-                        this.http.get(urlU)
-                          .toPromise()
-                          .then(response => {
-                            test = response.json() as BddApiSignin
-                            if (test.Success) {
-                              db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
-                            }
-                          })
-                          .catch(error => console.log('Une erreur est survenue ' + error));
+                      }
+
+                    });
+
+                } else if (requeteAction == "update") {
+
+                  db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE id=\'' + requeteId1 + '\' ', {})
+                    .then((data) => {
+
+                      if (data.rows.length > 0) {
+
+                        for (var i = 0; i < data.rows.length; i++) {
+
+                          donneeRapport.id = data.rows.item(i).id;
+                          donneeRapport.date = data.rows.item(i).date;
+                          donneeRapport.motif = data.rows.item(i).motif;
+                          donneeRapport.bilan = data.rows.item(i).bilan;
+                          donneeRapport.idVisiteur = data.rows.item(i).idVisiteur;
+                          donneeRapport.idMedecin = data.rows.item(i).idMedecin;
+
+                          let urlU = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=update&tableAction=${requeteTable}&id=${donneeRapport.id}&date=${donneeRapport.date}&motif=${donneeRapport.motif}&bilan=${donneeRapport.bilan}&idVisiteur=${donneeRapport.idVisiteur}&idMedecin=${donneeRapport.idMedecin}`;
+                          this.http.get(urlU)
+                            .toPromise()
+                            .then(response => {
+                              test = response.json() as BddApiSignin
+                              if (test.Success) {
+                                db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                              }
+                            })
+                            .catch(error => console.log('Une erreur est survenue ' + error));
 
                         }
 
-                    }
+                      }
 
-                  });
+                    });
+
+                }
+
+              } else if (requeteTable == "offrir") {
+
+                if (requeteAction == "remove") {
+
+                  url = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=${requeteAction}&tableAction=${requeteTable}&idRapport=${requeteId1}`;
+                  this.http.get(url)
+                    .toPromise()
+                    .then(response => {
+                      test = response.json() as BddApiSignin
+                      if (test.Success) {
+                        db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                      }
+                    })
+                    .catch(error => console.log('Une erreur est survenue ' + error));
+
+                } //else if (requeteAction == "insert") {
+
+                //   db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE idRapport=\'' + requeteId1 + '\' AND idMedicament=\'' + requeteId2 + '\'', {})
+                //     .then((data) => {
+
+                //       if (data.rows.length > 0) {
+
+                //         for (var i = 0; i < data.rows.length; i++) {
+
+                //           donneeRapport.id = data.rows.item(i).idRapport;
+                //           donneeRapport.idMedicament = data.rows.item(i).idMedicament;
+                //           donneeRapport.quantite = data.rows.item(i).quantite;
+
+                //           let urlI = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=insert&tableAction=${requeteTable}&idRapport=${donneeRapport.id}&idMedicament=${donneeRapport.idMedicament}&quantite=${donneeRapport.quantite}`;
+                //           this.http.get(urlI)
+                //             .toPromise()
+                //             .then(response => {
+                //               test = response.json() as BddApiSignin
+                //               if (test.Success) {
+                //                 db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                //               }
+                //             })
+                //             .catch(error => console.log('Une erreur est survenue ' + error));
+
+                //         }
+
+                //       }
+
+                //     });
+
+                // } else if (requeteAction == "update") {
+
+                //   db.executeSql('SELECT * FROM  ' + requeteTable + ' WHERE idRapport=\'' + requeteId1 + '\' AND idMedicament=\'' + requeteId2 + '\'', {})
+                //     .then((data) => {
+
+                //       if (data.rows.length > 0) {
+
+                //         for (var i = 0; i < data.rows.length; i++) {
+
+                //           donneeRapport.id = data.rows.item(i).idRapport;
+                //           donneeRapport.idMedicament = data.rows.item(i).idMedicament;
+                //           donneeRapport.quantite = data.rows.item(i).quantite;
+
+                //           let urlU = `${this.baseUrl}index.php?action=PushRequeteSave&actionSQL=update&tableAction=${requeteTable}&idRapport=${donneeRapport.id}&idMedicament=${donneeRapport.idMedicament}&quantite=${donneeRapport.quantite}`;
+                //           this.http.get(urlU)
+                //             .toPromise()
+                //             .then(response => {
+                //               test = response.json() as BddApiSignin
+                //               if (test.Success) {
+                //                 db.executeSql('DELETE FROM attenteEnvoieAPI WHERE id=\'' + idAttenteEnvoieAPI + '\'', {})
+                //               }
+                //             })
+                //             .catch(error => console.log('Une erreur est survenue ' + error));
+
+                //         }
+
+                //       }
+
+                //     });
+
+                // }
+
+
 
               }
 

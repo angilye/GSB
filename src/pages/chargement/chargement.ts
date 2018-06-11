@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 
 import { AcceuilPage } from '../acceuil/acceuil';
 
@@ -100,15 +99,18 @@ export class ChargementPage {
       ['CREATE TABLE IF NOT EXISTS `medecin` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nom` TEXT, `prenom` TEXT, `adresse` TEXT, `cp` TEXT, `ville` TEXT, `tel` TEXT, `specialiteComplementaire` TEXT, `category_id` INTEGER, `departement` TEXT, FOREIGN KEY(`category_id`) REFERENCES categories(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `medicament` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `nomCommercial` TEXT, `idFamille` INTEGER, `composition` TEXT, `effets` TEXT, `contreIndications` TEXT, FOREIGN KEY(`idFamille`) REFERENCES `famille`(`id`) )'],
       ['CREATE TABLE IF NOT EXISTS `rapport` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `date` TEXT, `motif` TEXT, `bilan` TEXT, `idVisiteur` INTEGER, `idMedecin` INTEGER, FOREIGN KEY(`idMedecin`) REFERENCES `medecin`(`id`), FOREIGN KEY(`idVisiteur`) REFERENCES `visiteur`(`id`) )'],
-      ['CREATE TABLE IF NOT EXISTS `offrir` ( `idRapport` INTEGER NOT NULL, `idMedicament` INTEGER NOT NULL, `quantite` INTEGER, FOREIGN KEY(`idRapport`) REFERENCES `rapport`(`id`), PRIMARY KEY(`idRapport`,`idMedicament`) )'],
+      ['CREATE TABLE IF NOT EXISTS `offrir` ( `idRapport` INTEGER NOT NULL, `idMedicament` INTEGER NOT NULL, `quantite` INTEGER NOT NULL, FOREIGN KEY(`idRapport`) REFERENCES `rapport`(`id`), FOREIGN KEY(`idMedicament`) REFERENCES `medicament`(`id`), PRIMARY KEY(`idRapport`,`idMedicament`) )'],
       ['CREATE TABLE IF NOT EXISTS `suivieApp` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `creationDB` INTEGER DEFAULT 0, `creationTables` INTEGER DEFAULT 0, `dateDernierImportInformationViaApi` TEXT, `dateDerniereConnexionSurApp` TEXT, `modifViaApiEnAttente` INTEGER DEFAULT 0, `versionApp` TEXT DEFAULT 0.1 )'],
       ['CREATE TABLE IF NOT EXISTS `attenteEnvoieAPI` ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `id1` TEXT NOT NULL, `id2` TEXT, `action` TEXT NOT NULL, `tableAction` TEXT NOT NULL)'],
       ['CREATE TABLE IF NOT EXISTS `categories` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `name` TEXT)'],
+
       ['INSERT INTO suivieApp (id, creationDB, creationTables) VALUES(1,1,1)'], 
+
       ['insert into categories (id, name) values (1,?)', ['Medecin']],
       ['insert into categories (id, name) values (2,?)', ['Pharmacien']],
       ['insert into categories (id, name) values (3,?)', ['Chef de Clinique']],
       ['insert into categories (id, name) values (4,?)', ['Autre']],
+
       ['INSERT INTO visiteur (id, nom, prenom, login, mdp, adresse, cp, ville, dateEmbauche) VALUES(\'' + this.id + '\',\'' + this.nom + '\',\'' + this.prenom + '\',\'' + this.login + '\',\'' + this.mdp + '\',\'' + this.adresse+ '\',\'' + this.cp + '\',\'' + this.ville + '\',\'' + this.dateEmbauche + '\')']
     ])
       .then(() => { this.log = this.log.concat('monter des tables fini'); this.ImportTables(this.db);})  
@@ -214,23 +216,6 @@ export class ChargementPage {
 
           });
 
-          this.familleTable.Offrir.forEach(element => {
-            // insertion des elements recu par l'API dans la tables local
-            db.executeSql('INSERT INTO offir (idRapport, idMedicament) VALUES(\'' + element.idRapport + '\',\'' + element.idMedicament + '\')', {})
-              .then((data) => {
-
-                if (data == null) {
-                  return;
-                }
-
-                // le temps des test peux etre virer apres.
-                this.log = this.log.concat(element.idRapport);
-
-              })
-              .catch(() => this.log = this.log.concat('errorO'));
-
-          });
-
           this.familleTable.Rapport.forEach(element => {
             // insertion des elements recu par l'API dans la tables local
             db.executeSql('INSERT INTO rapport (id, date, motif, bilan, idVisiteur, idMedecin) VALUES(\'' + element.id + '\',\'' + element.date + '\',\'' + element.motif + '\',\'' + element.bilan + '\',\'' + element.idVisiteur + '\',\'' + element.idMedecin + '\')', {})
@@ -245,6 +230,23 @@ export class ChargementPage {
 
               })
               .catch(() => this.log = this.log.concat('errorR'));
+
+          });
+
+          this.familleTable.Offrir.forEach(element => {
+            // insertion des elements recu par l'API dans la tables local
+            db.executeSql('INSERT INTO offrir (idRapport, idMedicament, quantite) VALUES(\'' + element.idRapport + '\',\'' + element.idMedicament + '\',\'' + element.quantite + '\')', {})
+              .then((data) => {
+
+                if (data == null) {
+                  return;
+                }
+
+                // le temps des test peux etre virer apres.
+                this.log = this.log.concat(element.idRapport);
+
+              })
+              .catch(() => this.log = this.log.concat('errorO'));
 
           });
 

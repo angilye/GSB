@@ -3,4 +3,5 @@
 export class BddApiImportFirstOffrir {
     idRapport: string;
     idMedicament: string;
+    quantite: string;
 }

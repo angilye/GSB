@@ -32,9 +32,7 @@ export class MedecinProvider {
                         });
 
                 });
-
                 
-
             })
             .catch((e) => console.error(e));
 

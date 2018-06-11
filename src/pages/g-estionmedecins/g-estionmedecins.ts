@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { PROFILDUMEDECINPage } from '../p-rofildumedecin/p-rofildumedecin';
 import { MDecinsPage } from '../m-decins/m-decins';
 
 import { EditMedecinPage } from '../edit-medecin/edit-medecin';
